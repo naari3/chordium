@@ -1,6 +1,0 @@
-{
-    "python.pythonPath": "/home/naari3/.local/share/virtualenvs/chordium-wQ-kGfcz/bin/python",
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true,
-    "python.formatting.provider": "black"
-}
