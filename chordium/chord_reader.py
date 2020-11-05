@@ -13,6 +13,7 @@ DEGREE_DICT = dict(
             "VI": "A",
             "VII": "B",
         }.items(),
+        key=lambda item: len(item[0]),
         reverse=True,
     )
 )
