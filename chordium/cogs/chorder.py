@@ -20,11 +20,10 @@ class Chorder(commands.Cog):
         await ctx.send("err: {}".format(str(error)))
 
     @commands.command(name="play")
-    async def _play(self, ctx: commands.Context, chords: str):
+    async def _play(self, ctx: commands.Context, chords: str, scale: str):
         """Play specific chords."""
 
         with tempfile.TemporaryFile() as f:
-
-            self.chord_player.make_wav(chords, f)
+            self.chord_player.make_wav(f, chords, scale)
 
             await ctx.send("♪", file=discord.File(f, "chord.wav"))

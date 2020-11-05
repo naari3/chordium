@@ -22,16 +22,16 @@ class ChordPlayer(object):
         self.chord_reader = ChordReader()
         self.chord_progressor = ChordProgressor()
 
-    def make_wav(self, user_input: str, io: BinaryIO):
-        pcm = self.make_pcm(user_input)
+    def make_wav(self, io: BinaryIO, user_input: str, scale: str):
+        pcm = self.make_pcm(user_input, scale)
         wavfile.write(io, 44100, pcm)
 
-    def make_pcm(self, user_input: str):
+    def make_pcm(self, user_input: str, scale: str):
         pm = pretty_midi.PrettyMIDI()
         program = pretty_midi.instrument_name_to_program(self.instrument)
         instrument = pretty_midi.Instrument(program=program)
 
-        chords = self.chord_reader.parse(user_input)
+        chords = self.chord_reader.parse(user_input, scale)
         notes = self.chord_progressor.chords_to_notes(chords)
 
         instrument.notes.extend(notes)
