@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3799f6a69191b05c95248e02cac8034886a62867653089b390ec2f15188705e9"
+            "sha256": "3e554e32470b503a318d607b88139f55afac397371fe928d5d6cef46cecaed51"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -150,6 +150,13 @@
             ],
             "index": "pypi",
             "version": "==0.2.9"
+        },
+        "pychord": {
+            "hashes": [
+                "sha256:39b1ef3bbb30c68bf1fa7f31a5381340bdefcafd7e52f0653ec9a1b408622dcc"
+            ],
+            "index": "pypi",
+            "version": "==0.5.0"
         },
         "pyfluidsynth": {
             "git": "https://github.com/SpotlightKid/pyfluidsynth.git",
