@@ -2,6 +2,21 @@ import pychord
 
 from typing import List
 
+DEGREE_DICT = dict(
+    sorted(
+        {
+            "I": "C",
+            "II": "D",
+            "III": "E",
+            "IV": "F",
+            "V": "G",
+            "VI": "A",
+            "VII": "B",
+        }.items(),
+        reverse=True,
+    )
+)
+
 
 class ChordReader(object):
     """
@@ -9,8 +24,18 @@ class ChordReader(object):
     """
 
     def parse(self, user_input: str) -> List[List[str]]:
-        chord_names = user_input.split("|")
+        chord_names = self._parse(user_input)
         return self.chord_names_to_notes(chord_names)
+
+    def _parse(self, user_input: str) -> List[str]:
+        chords = []
+        chord_names = user_input.split("|")
+        for chord_name in chord_names:
+            for degree, in_c in DEGREE_DICT.items():
+                chord_name = chord_name.replace(degree, in_c)
+            chords.append(chord_name)
+
+        return chords
 
     def chord_names_to_notes(self, chord_names: List[str]) -> List[List[str]]:
         chord_progression = pychord.ChordProgression(chord_names)
