@@ -24,9 +24,9 @@ class ChordReader(object):
     parse strings and return note names
     """
 
-    def parse(self, user_input: str, scale: str) -> List[List[str]]:
+    def parse(self, user_input: str, scale: str, voicing: bool) -> List[List[str]]:
         chord_names = self._parse(user_input)
-        return self.chord_names_to_notes(chord_names, self.scale_to_int(scale))
+        return self.chord_names_to_notes(chord_names, self.scale_to_int(scale), voicing)
 
     def scale_to_int(self, scale: str):
         try:
@@ -47,19 +47,23 @@ class ChordReader(object):
         return chords
 
     def chord_names_to_notes(
-        self, chord_names: List[str], scale: int
+        self, chord_names: List[str], scale: int, voicing: bool
     ) -> List[List[str]]:
         chord_progression = pychord.ChordProgression(chord_names)
         chord_progression.transpose(scale)
 
         chords = []
         for chord in chord_progression:
-            chords.append(self.chord_to_note_names(chord))
+            chords.append(self.chord_to_note_names(chord, voicing))
 
         return chords
 
-    def chord_to_note_names(self, chord: pychord.Chord) -> List[str]:
+    def chord_to_note_names(self, chord: pychord.Chord, voicing: bool) -> List[str]:
         note_names = []
-        for note in chord.components():
-            note_names.append(f"{note}4")  # voicing
+        if voicing:
+            for note in chord.components():
+                note_names.append(f"{note}4")  # fix to oct 4
+        else:
+            for note in chord.components_with_pitch(root_pitch=4):
+                note_names.append(note)
         return note_names

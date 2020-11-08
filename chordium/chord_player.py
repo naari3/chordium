@@ -26,9 +26,10 @@ class ChordPlayer(object):
         scale: str,
         instrument: str,
         bpm: int,
+        voicing: bool,
         metronome: bool,
     ):
-        pcm = self.make_pcm(user_input, scale, instrument, bpm, metronome)
+        pcm = self.make_pcm(user_input, scale, instrument, bpm, voicing, metronome)
         wavfile.write(io, 44100, pcm)
 
     def make_pcm(
@@ -37,13 +38,14 @@ class ChordPlayer(object):
         scale: str,
         instrument_name: str,
         bpm: int,
+        voicing: bool,
         metronome: bool,
     ):
         pm = pretty_midi.PrettyMIDI(initial_tempo=bpm)
         program = pretty_midi.instrument_name_to_program(instrument_name)
         instrument = pretty_midi.Instrument(program=program)
 
-        chords = self.chord_reader.parse(user_input, scale)
+        chords = self.chord_reader.parse(user_input, scale, voicing)
         notes = self.chord_progressor.chords_to_notes(chords, bpm)
 
         instrument.notes.extend(notes)

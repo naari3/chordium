@@ -25,6 +25,7 @@ class Chorder(commands.Cog):
         scale: str = "C",
         instrument: str = "Acoustic Grand Piano",
         bpm: str = "120",
+        voicing: str = "true",
         metronome: str = "false",
     ):
         """Play specific chords."""
@@ -38,8 +39,16 @@ class Chorder(commands.Cog):
         if bpm == "-":
             bpm = "120"
 
+        if voicing == "-":
+            voicing = "false"
+
         if metronome == "-":
             metronome = "false"
+
+        if voicing in ("yes", "y", "true", "t", "1", "enable", "on"):
+            voicing = True
+        elif voicing in ("no", "n", "false", "f", "0", "disable", "off"):
+            voicing = False
 
         if metronome in ("yes", "y", "true", "t", "1", "enable", "on"):
             metronome = True
@@ -48,7 +57,7 @@ class Chorder(commands.Cog):
 
         with tempfile.TemporaryFile() as f:
             self.chord_player.make_wav(
-                f, chords, scale, instrument, float(bpm), metronome
+                f, chords, scale, instrument, float(bpm), voicing, metronome
             )
 
             await ctx.send("♪", file=discord.File(f, "chord.wav"))
