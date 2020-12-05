@@ -4,13 +4,13 @@ from discord.ext import commands
 import tempfile
 
 
-from chordium import ChordPlayer
+from chordium.models import ScoreParser, ScorePlayer
+from chordium.utils import scale_to_int
 
 
 class Chorder(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.chord_player = ChordPlayer()
 
     async def cog_command_error(
         self, ctx: commands.Context, error: commands.CommandError
@@ -56,8 +56,9 @@ class Chorder(commands.Cog):
             metronome = False
 
         with tempfile.TemporaryFile() as f:
-            self.chord_player.make_wav(
-                f, chords, scale, instrument, float(bpm), voicing, metronome
-            )
+            progression = ScoreParser().parse(chords, float(bpm))
+            player = ScorePlayer(instrument)
+            notes = progression.to_notes(scale_to_int(scale), voicing)
+            player.make_wav(f, notes)
 
             await ctx.send("♪", file=discord.File(f, "chord.wav"))

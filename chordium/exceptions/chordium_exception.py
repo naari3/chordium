@@ -1,0 +1,2 @@
+class ChordiumException(Exception):
+    pass
