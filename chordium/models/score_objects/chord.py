@@ -3,9 +3,28 @@ from typing import List, Callable
 
 from .base import Base
 
+DEGREE_DICT = dict(
+    sorted(
+        {
+            "I": "C",
+            "II": "D",
+            "III": "E",
+            "IV": "F",
+            "V": "G",
+            "VI": "A",
+            "VII": "B",
+        }.items(),
+        key=lambda item: len(item[0]),
+        reverse=True,
+    )
+)
+
 
 class Chord(Base):
     def __init__(self, input: str):
+        for chord_str, in_c in DEGREE_DICT.items():
+            input = input.strip()
+            input = input.replace(chord_str, in_c)
         self._chord: pychord.Chord = pychord.Chord(input)
 
     def __repr__(self):

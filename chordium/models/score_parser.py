@@ -5,29 +5,13 @@ from .score_objects import Base, Chord, Same, Sleep, Tie, BarLine
 import re
 from typing import List, Tuple, Optional
 
-DEGREE_DICT = dict(
-    sorted(
-        {
-            "I": "C",
-            "II": "D",
-            "III": "E",
-            "IV": "F",
-            "V": "G",
-            "VI": "A",
-            "VII": "B",
-        }.items(),
-        key=lambda item: len(item[0]),
-        reverse=True,
-    )
-)
-
 signature = r"[#b]{0,2}"
 scales = r"[CDEFGAB]"
 degrees = r"(VII|III|IV|VI|II|I|V)"
 note = f"{scales}{signature}"
 space = r"[ 　]+"
 degree_note = f"{degrees}{signature}"
-special_notes = ["%", "=", "_"]
+special_notes = ["%", "=", "_", "-"]
 on_chord_separator = r"(\/|on)"
 chord_types = "(?![#♯b♭])(?:(?!(on|l))[Ma-z0-9()（）,\\-+#♯＃b♭ｂ△ΔΦφø])+"
 
@@ -82,14 +66,7 @@ class ScoreParser(object):
             return (input[will_tokenize:], Same())
         elif chord_str == "=":
             return (input[will_tokenize:], Tie())
-        elif chord_str == "_":
+        elif chord_str == "_" or chord_str == "-":
             return (input[will_tokenize:], Sleep())
         else:
-            return (input[will_tokenize:], self.chord(chord_str))
-
-    def chord(self, input: str) -> Chord:
-        for chord_str, in_c in DEGREE_DICT.items():
-            input = input.strip()
-            input = input.replace(chord_str, in_c)
-
-        return Chord(input)
+            return (input[will_tokenize:], Chord(chord_str))
