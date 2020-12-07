@@ -16,6 +16,7 @@ class Chorder(commands.Cog):
         self, ctx: commands.Context, error: commands.CommandError
     ):
         await ctx.send("err: {}".format(str(error)))
+        raise error
 
     @commands.command(name="play")
     async def _play(
@@ -61,4 +62,6 @@ class Chorder(commands.Cog):
             notes = progression.to_notes(scale_to_int(scale), voicing)
             player.make_wav(f, notes)
 
-            await ctx.send("♪", file=discord.File(f, "chord.wav"))
+            await ctx.send(
+                f"*♪* {progression.show_progress()}", file=discord.File(f, "chord.wav")
+            )

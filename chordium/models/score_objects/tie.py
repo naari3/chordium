@@ -2,4 +2,5 @@ from .base import Base
 
 
 class Tie(Base):
-    pass
+    def _show_progress(self):
+        return "="

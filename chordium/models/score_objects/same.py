@@ -2,4 +2,5 @@ from .base import Base
 
 
 class Same(Base):
-    pass
+    def _show_progress(self):
+        return "%"

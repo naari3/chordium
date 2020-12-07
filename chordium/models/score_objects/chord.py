@@ -27,9 +27,6 @@ class Chord(Base):
             input = input.replace(chord_str, in_c)
         self._chord: pychord.Chord = pychord.Chord(input)
 
-    def __repr__(self):
-        return f"<Chord: {self._show_progress()}>"
-
     def _show_progress(self):
         return self._chord.chord
 

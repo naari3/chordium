@@ -1,6 +1,6 @@
 class Base(object):
-    def __repl__(self):
-        raise NotImplementedError
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: {self._show_progress()}>"
 
     def _show_progress(self):
         raise NotImplementedError

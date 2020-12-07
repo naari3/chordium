@@ -1,6 +1,6 @@
 from chordium.exceptions import ChordiumException
 from chordium.models import ScoreProgression
-from .score_objects import Base, Chord, Same, Sleep, Tie, BarLine
+from .score_objects import Base, Chord, Same, Sleep, Tie
 
 import re
 from typing import List, Tuple, Optional

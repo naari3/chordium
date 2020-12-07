@@ -27,7 +27,15 @@ class ScoreProgression(object):
         self.progress = 0
 
     def __repr__(self):
-        return f"<ScoreProgression score: {' | '.join([' '.join(list(map(lambda c: c._show_progress(), score_objects))) for score_objects in self.score_object_lists])} >"
+        return f"<ScoreProgression score: {self.show_progress()} >"
+
+    def show_progress(self):
+        return " | ".join(
+            [
+                " ".join(list(map(lambda c: c._show_progress(), score_objects)))
+                for score_objects in self.score_object_lists
+            ]
+        )
 
     def to_notes(self, scale: int, voicing: bool) -> List[pretty_midi.Note]:
         notes = []
