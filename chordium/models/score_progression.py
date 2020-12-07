@@ -59,6 +59,10 @@ class ScoreProgression(object):
                     notes.append(note)
             current_position += beat_length.length * bpm_multiplexer
 
+        print(current_position)
+        if current_position * 44100 * 16 * 2 / 8 > 8388608:
+            raise ChordiumException("長すぎます！")
+
         return notes
 
     def _bar_to_beat_length_list(
