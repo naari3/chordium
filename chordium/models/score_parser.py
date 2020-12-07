@@ -13,7 +13,7 @@ space = r"[ 　]+"
 degree_note = f"{degrees}{signature}"
 special_notes = ["%", "=", "_", "-"]
 on_chord_separator = r"(\/|on)"
-chord_types = "(?![#♯b♭])(?:(?!(on|l))[Ma-z0-9()（）,\\-+#♯＃b♭ｂ△ΔΦφø])+"
+chord_types = "(?![#♯b♭])(?:(?!(on))[Ma-z0-9()（）,\\-+#♯＃b♭ｂ△ΔΦφø^°])+"
 
 root_chord = f"({note}|{'|'.join(special_notes)})"
 degree_root_chord = f"({degree_note}|{'|'.join(special_notes)})"
