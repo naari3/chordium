@@ -52,6 +52,8 @@ class ScoreParser(object):
                     break
                 score_objects.append(score_object)
                 bar_str = next_input
+            if len(score_objects) == 0:
+                score_objects.append(Sleep())
             score_objets_list.append(score_objects)
 
         return score_objets_list
