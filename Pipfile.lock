@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7ec81715f5b101c646785a4059002abb6b55a7757a06fdee1ac4655765107232"
+            "sha256": "1938350f17ec51b87e354e9e5fc07c0f987e81990fba70cae9a6a701406b191a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -153,10 +153,7 @@
         },
         "pychord": {
             "git": "https://github.com/naari3/pychord.git",
-            "hashes": [
-                "sha256:39b1ef3bbb30c68bf1fa7f31a5381340bdefcafd7e52f0653ec9a1b408622dcc"
-            ],
-            "ref": "bf1d74f1413749268dc331464b15ac0d8ef27b6c"
+            "ref": "5bd6606166177b805806d40fd591b42f7c9a7040"
         },
         "pyfluidsynth": {
             "git": "https://github.com/SpotlightKid/pyfluidsynth.git",

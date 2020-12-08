@@ -16,7 +16,7 @@ pretty-midi = "*"
 scipy = "*"
 pyfluidsynth = {git = "https://github.com/SpotlightKid/pyfluidsynth.git", ref = "7f1063e953640e20a1b0ede603f984e1f58b25e8"}
 numpy = "*"
-pychord = {ref = "bf1d74f1413749268dc331464b15ac0d8ef27b6c", git = "https://github.com/naari3/pychord.git"}
+pychord = {ref = "5bd6606166177b805806d40fd591b42f7c9a7040", git = "https://github.com/naari3/pychord.git"}
 
 [requires]
 python_version = "3.8"
