@@ -31,10 +31,11 @@ class Chord(Base):
         return self._chord.chord
 
     def to_notes(self, scale: int, voicing: bool) -> List[str]:
-        self._chord.transpose(scale)
+        tmp_chord = pychord.Chord(self._chord._chord)
+        tmp_chord.transpose(scale)
         if voicing:
             fix_scale: Callable[[str], str] = lambda chord: f"{chord}4"
-            notes = list(map(fix_scale, self._chord.components()))
+            notes = list(map(fix_scale, tmp_chord.components()))
             return notes
         else:
-            return self._chord.components_with_pitch(4)
+            return tmp_chord.components_with_pitch(4)
