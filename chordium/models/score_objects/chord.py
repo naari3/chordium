@@ -27,22 +27,27 @@ class Chord(Base):
         for chord_str, in_c in DEGREE_DICT.items():
             input = input.strip()
             input = input.replace(chord_str, in_c)
-        self._chord: pychord.Chord = pychord.Chord(input)
+        input = input.replace("on", "/")
+        self._chord: str = input
 
     def _show_progress(self):
-        return self._chord.chord
+        return self._chord
 
     def to_notes(self, scale: int) -> List[str]:
-        tmp_chord = pychord.Chord(self._chord._chord)
-        tmp_chord.transpose(scale)
-        return chord_translate(tmp_chord)
+        chord = pychord.Chord(self._chord)
+        chord.transpose(scale)
+        on = chord.on
+        chord._on = None
+
+        notes = chord_translate(chord)
+        notes = add_juicy(notes)
+        if on:
+            notes = add_new_root_notes(notes, on)
+
+        return notes
 
 
-def chord_translate(chord: pychord.Chord, base_oct: int = 3) -> List[str]:
-    on = chord.on
-    chord._on = None
-    notes = chord.components_with_pitch(base_oct)
-
+def add_juicy(notes):
     max_notes = 5
     min_notes = 3
     original_note_len = len(notes)
@@ -51,19 +56,26 @@ def chord_translate(chord: pychord.Chord, base_oct: int = 3) -> List[str]:
         j = i + original_note_len - min_notes
         notes.append(up_octave(notes[j]))
 
-    if on:
-        if musthe.Note(notes[0]).number > musthe.Note(f"{on}{base_oct}").number:
-            adjust = 0
-        else:
-            adjust = -1
-        notes.insert(0, f"{on}{base_oct + adjust}")
-
-    print(notes)
     return notes
 
 
 def up_octave(note) -> str:
     return (musthe.Note(note) + musthe.Interval("P8")).scientific_notation()
+
+
+def chord_translate(chord: pychord.Chord, base_oct: int = 3) -> List[str]:
+    notes = chord.components_with_pitch(base_oct)
+
+    return notes
+
+
+def add_new_root_notes(notes: List[str], on: str, base_oct: int = 3):
+    if musthe.Note(notes[0]).number > musthe.Note(f"{on}{base_oct}").number:
+        adjust = 0
+    else:
+        adjust = -1
+    notes.insert(0, f"{on}{base_oct + adjust}")
+    return notes
 
 
 # REGEX = re.compile(
