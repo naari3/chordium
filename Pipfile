@@ -18,6 +18,8 @@ pyfluidsynth = {git = "https://github.com/SpotlightKid/pyfluidsynth.git", ref = 
 numpy = "*"
 pychord = {ref = "5bd6606166177b805806d40fd591b42f7c9a7040", git = "https://github.com/naari3/pychord.git"}
 musthe = "*"
+pytheory = "*"
+pytuning = {ref = "e46f5f2135f02b6f66465f312c88631f36ffe9f7", git = "https://github.com/naari3/PyTuning.git"}
 
 [requires]
 python_version = "3.8"

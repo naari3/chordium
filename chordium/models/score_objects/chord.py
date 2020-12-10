@@ -1,6 +1,7 @@
 import pychord
 from typing import List, Callable
 import musthe
+import pytheory
 import re
 
 from .base import Base
@@ -33,9 +34,8 @@ class Chord(Base):
     def _show_progress(self):
         return self._chord
 
-    def to_notes(self, scale: int) -> List[str]:
+    def to_notes(self, scale: int = 0) -> List[str]:
         chord = pychord.Chord(self._chord)
-        chord.transpose(scale)
         on = chord.on
         chord._on = None
 
@@ -43,6 +43,7 @@ class Chord(Base):
         notes = add_juicy(notes)
         if on:
             notes = add_new_root_notes(notes, on)
+        notes = transpose(notes, scale)
 
         return notes
 
@@ -63,7 +64,8 @@ def up_octave(note) -> str:
     return (musthe.Note(note) + musthe.Interval("P8")).scientific_notation()
 
 
-def chord_translate(chord: pychord.Chord, base_oct: int = 3) -> List[str]:
+def chord_translate(chord_str: str, base_oct: int = 3) -> List[str]:
+    chord = pychord.Chord(chord_str)
     notes = chord.components_with_pitch(base_oct)
 
     return notes
@@ -76,6 +78,15 @@ def add_new_root_notes(notes: List[str], on: str, base_oct: int = 3):
         adjust = -1
     notes.insert(0, f"{on}{base_oct + adjust}")
     return notes
+
+
+def transpose(notes: List[str], scale: int):
+    new_notes = []
+    for n in notes:
+        tone = pytheory.Tone.from_string(n)
+        tone = tone.subtract(scale)
+        new_notes.append(tone.full_name)
+    return new_notes
 
 
 # REGEX = re.compile(
