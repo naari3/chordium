@@ -58,6 +58,10 @@ def up_octave(note) -> str:
 
 def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
     chord = pychord.Chord(chord_str)
+    s = musthe.Scale(chord.root, "major")
+    scales = [s[i] for i in range(len(s))]
+    # chord.quality.append_note("", "C") こんなかんじでaddすべきものを逐次追加していく
+
     chord.transpose(scale)
     notes = chord.components_with_pitch(base_oct)
 
