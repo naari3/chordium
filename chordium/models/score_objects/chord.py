@@ -1,4 +1,4 @@
-from chordium.constants import DEGREE_DICT
+from chordium.constants import DEGREE_DICT, TONE_DICT, INV_TONE_DICT, note_with_oct
 import pychord
 from typing import List, Callable
 import musthe
@@ -6,6 +6,8 @@ import pytheory
 import re
 
 from .base import Base
+
+note_with_oct_regex = re.compile(note_with_oct)
 
 
 class Chord(Base):
@@ -20,14 +22,21 @@ class Chord(Base):
         return self._chord
 
     def to_notes(self, scale: int = 0) -> List[str]:
-        chord, on = self._chord.split("/")  # bad, to replace regex
+        splitted = self._chord.split("/")
+        if len(splitted) != 1:
+            chord, on = splitted
+        else:
+            chord = splitted[0]
+            on = None
 
-        notes = chord_translate(chord)
+        notes = chord_translate(chord, scale)
+
+        # notes = transpose_notes(notes, scale)
         notes = add_juicy(notes)
         if on:
-            notes = add_new_root_notes(notes, on)
-        notes = transpose(notes, scale)
+            notes = add_new_root_notes(notes, transpose_without_oct(on, scale))
 
+        print(notes)
         return notes
 
 
@@ -47,8 +56,9 @@ def up_octave(note) -> str:
     return (musthe.Note(note) + musthe.Interval("P8")).scientific_notation()
 
 
-def chord_translate(chord_str: str, base_oct: int = 3) -> List[str]:
+def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
     chord = pychord.Chord(chord_str)
+    chord.transpose(scale)
     notes = chord.components_with_pitch(base_oct)
 
     return notes
@@ -63,13 +73,31 @@ def add_new_root_notes(notes: List[str], on: str, base_oct: int = 3):
     return notes
 
 
-def transpose(notes: List[str], scale: int):
+def transpose_notes(notes: List[str], scale: int):
     new_notes = []
     for n in notes:
-        tone = pytheory.Tone.from_string(n)
-        tone = tone.add(scale)
-        new_notes.append(tone.full_name)
+        new_notes.append(transpose(n, scale))
     return new_notes
+
+
+def transpose(note: str, scale: int):
+    result = note_with_oct_regex.search(note)
+    note = result.group("note")
+    oct = int(result.group("oct"))
+    note_number = TONE_DICT[note] + scale
+    if note_number > 11:
+        oct += 1
+    elif note_number < 0:
+        oct -= 1
+    note_number %= 12
+    new_note = INV_TONE_DICT[note_number]
+    return f"{new_note}{oct}"
+
+
+def transpose_without_oct(note: str, scale: int):
+    note_number = (TONE_DICT[note] + scale) % 12
+    new_note = INV_TONE_DICT[note_number]
+    return f"{new_note}"
 
 
 # REGEX = re.compile(
