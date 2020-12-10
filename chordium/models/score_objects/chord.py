@@ -1,3 +1,4 @@
+from chordium.constants import DEGREE_DICT
 import pychord
 from typing import List, Callable
 import musthe
@@ -5,22 +6,6 @@ import pytheory
 import re
 
 from .base import Base
-
-DEGREE_DICT = dict(
-    sorted(
-        {
-            "I": "C",
-            "II": "D",
-            "III": "E",
-            "IV": "F",
-            "V": "G",
-            "VI": "A",
-            "VII": "B",
-        }.items(),
-        key=lambda item: len(item[0]),
-        reverse=True,
-    )
-)
 
 
 class Chord(Base):
@@ -35,9 +20,7 @@ class Chord(Base):
         return self._chord
 
     def to_notes(self, scale: int = 0) -> List[str]:
-        chord = pychord.Chord(self._chord)
-        on = chord.on
-        chord._on = None
+        chord, on = self._chord.split("/")  # bad, to replace regex
 
         notes = chord_translate(chord)
         notes = add_juicy(notes)
@@ -84,7 +67,7 @@ def transpose(notes: List[str], scale: int):
     new_notes = []
     for n in notes:
         tone = pytheory.Tone.from_string(n)
-        tone = tone.subtract(scale)
+        tone = tone.add(scale)
         new_notes.append(tone.full_name)
     return new_notes
 

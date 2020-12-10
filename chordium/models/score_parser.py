@@ -1,30 +1,10 @@
 from chordium.exceptions import ChordiumException
 from chordium.models import ScoreProgression
 from .score_objects import Base, Chord, Same, Sleep, Tie
+from chordium.constants import chord_regex
 
 import re
 from typing import List, Tuple, Optional
-
-signature = r"[#b]{0,2}"
-scales = r"[CDEFGAB]"
-degrees = r"(VII|III|IV|VI|II|I|V)"
-note = f"{scales}{signature}"
-space = r"[ 　]+"
-degree_note = f"{degrees}{signature}"
-special_notes = ["%", "=", "_", "-"]
-on_chord_separator = r"(\/|on)"
-chord_types = "(?![#♯b♭])(?:(?!(on))[Ma-z0-9()（）,\\-+#♯＃b♭ｂ△ΔΦφø^°])+"
-
-root_chord = f"({note}|{'|'.join(special_notes)})"
-degree_root_chord = f"({degree_note}|{'|'.join(special_notes)})"
-
-on_chord = f"{on_chord_separator}{note}"
-on_degree_chord = f"{on_chord_separator}{degree_note}"
-
-chord_type = chord_types
-chord_regex = re.compile(
-    f"^(({note}({chord_types})?({on_chord_separator}{note})?)|({degree_note}({chord_types})?({on_chord_separator}{degree_note})?)|{'|'.join(special_notes)})"
-)
 
 
 class ScoreParser(object):
