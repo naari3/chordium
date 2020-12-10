@@ -30,7 +30,7 @@ class ScoreProgression(object):
             ]
         )
 
-    def to_notes(self, scale: int, voicing: bool) -> List[pretty_midi.Note]:
+    def to_notes(self, scale: int) -> List[pretty_midi.Note]:
         notes = []
         beat_length_list_list = [
             self._bar_to_beat_length_list(score_object_list)
@@ -41,7 +41,7 @@ class ScoreProgression(object):
         current_position = 0
         for beat_length in beat_length_list:
             if isinstance(beat_length.kind, Chord):
-                for note in beat_length.kind.to_notes(scale, voicing):
+                for note in beat_length.kind.to_notes(scale):
                     note_number = pretty_midi.note_name_to_number(note)
                     note = pretty_midi.Note(
                         velocity=100,

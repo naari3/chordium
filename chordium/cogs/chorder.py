@@ -26,7 +26,6 @@ class Chorder(commands.Cog):
         scale: str = "C",
         instrument: str = "Acoustic Grand Piano",
         bpm: str = "120",
-        voicing: str = "true",
         metronome: str = "false",
     ):
         """Play specific chords."""
@@ -40,16 +39,8 @@ class Chorder(commands.Cog):
         if bpm == "-":
             bpm = "120"
 
-        if voicing == "-":
-            voicing = "false"
-
         if metronome == "-":
             metronome = "false"
-
-        if voicing in ("yes", "y", "true", "t", "1", "enable", "on"):
-            voicing = True
-        elif voicing in ("no", "n", "false", "f", "0", "disable", "off"):
-            voicing = False
 
         if metronome in ("yes", "y", "true", "t", "1", "enable", "on"):
             metronome = True
@@ -59,7 +50,7 @@ class Chorder(commands.Cog):
         with tempfile.TemporaryFile() as f:
             progression = ScoreParser().parse(chords, float(bpm))
             player = ScorePlayer(instrument)
-            notes = progression.to_notes(scale_to_int(scale), voicing)
+            notes = progression.to_notes(scale_to_int(scale))
             player.make_wav(f, notes)
 
             await ctx.send(

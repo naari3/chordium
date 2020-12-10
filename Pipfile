@@ -17,6 +17,7 @@ scipy = "*"
 pyfluidsynth = {git = "https://github.com/SpotlightKid/pyfluidsynth.git", ref = "7f1063e953640e20a1b0ede603f984e1f58b25e8"}
 numpy = "*"
 pychord = {ref = "5bd6606166177b805806d40fd591b42f7c9a7040", git = "https://github.com/naari3/pychord.git"}
+musthe = "*"
 
 [requires]
 python_version = "3.8"
