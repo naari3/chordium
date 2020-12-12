@@ -1,4 +1,11 @@
-from chordium.constants import DEGREE_DICT, TONE_DICT, INV_TONE_DICT, note_with_oct
+from chordium.constants import (
+    DEGREE_DICT,
+    TONE_DICT,
+    INV_TONE_DICT,
+    note_with_oct,
+    note,
+    signature,
+)
 import pychord
 from typing import List, Callable
 import musthe
@@ -56,11 +63,44 @@ def up_octave(note) -> str:
     return (musthe.Note(note) + musthe.Interval("P8")).scientific_notation()
 
 
+add = f"((add)?({signature})?(11|13|5|7|9){1})"
+omit = f"((omit|no)?({signature})?(11|13|5|7|9){1})"
+add_regex = re.compile(add)
+omit_regex = re.compile(omit)
+
+
 def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
-    chord = pychord.Chord(chord_str)
-    s = musthe.Scale(chord.root, "major")
-    scales = [s[i] for i in range(len(s))]
-    # chord.quality.append_note("", "C") こんなかんじでaddすべきものを逐次追加していく
+    try:
+        chord = pychord.Chord(chord_str)
+        addomit = dict()
+    except ValueError as e:
+        raise e  # まだ完成してないのでそのままraiseさせる
+        # add omit だけ抜き取りたい
+        chord_without_quality = re.sub(f"^{note}", "", chord_str)
+        valid_qualities = pychord.quality.QUALITY_DICT.keys()
+        valid_qualities.remove("")
+        valid_qualities.sort(key=len, reverse=True)
+
+        found = False
+        addomit_str = ""
+        for quality in valid_qualities:
+            if chord_without_quality.find(quality) == 0:  # 先頭のコードqualityを削除する
+                found = True
+                addomit_str = chord_without_quality.lstrip(quality)
+                chord = pychord.Chord(chord_str.rstrip(addomit_str))
+                break
+        if not found:
+            raise e
+
+        adds = [r.groups()[-2:] for r in re.finditer(add_regex, addomit_str)]
+        omits = [r.groups()[-2:] for r in re.finditer(omit_regex, addomit_str)]
+
+        addomit = {adds: adds, omits: omits}
+
+    if len(addomit) > 0:
+        # chord.quality.append_note("", "C") こんなかんじでaddすべきものを逐次追加していく
+        # scale = musthe.Scale(chord.root, "major")
+        pass
 
     chord.transpose(scale)
     notes = chord.components_with_pitch(base_oct)
@@ -85,9 +125,9 @@ def transpose_notes(notes: List[str], scale: int):
 
 
 def transpose(note: str, scale: int):
-    result = note_with_oct_regex.search(note)
-    note = result.group("note")
-    oct = int(result.group("oct"))
+    notedict = parse_note_str(note)
+    note = notedict["note"]
+    oct = int(notedict["oct"])
     note_number = TONE_DICT[note] + scale
     if note_number > 11:
         oct += 1
@@ -102,6 +142,10 @@ def transpose_without_oct(note: str, scale: int):
     note_number = (TONE_DICT[note] + scale) % 12
     new_note = INV_TONE_DICT[note_number]
     return f"{new_note}"
+
+
+def parse_note_str(note: str):
+    return note_with_oct_regex.search(note).groupdict()
 
 
 # REGEX = re.compile(
