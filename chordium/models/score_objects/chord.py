@@ -63,8 +63,8 @@ def up_octave(note) -> str:
     return (musthe.Note(note) + musthe.Interval("P8")).scientific_notation()
 
 
-add = f"((add)?({signature})?(11|13|5|7|9){1})"
-omit = f"((omit|no)?({signature})?(11|13|5|7|9){1})"
+add = f"((add)?({signature})(11|13|2|4|6|9){{1}})"
+omit = f"((omit|no)({signature})(11|13|1|3|5|7|9){{1}})"
 add_regex = re.compile(add)
 omit_regex = re.compile(omit)
 
@@ -74,10 +74,9 @@ def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
         chord = pychord.Chord(chord_str)
         addomit = dict()
     except ValueError as e:
-        raise e  # まだ完成してないのでそのままraiseさせる
         # add omit だけ抜き取りたい
         chord_without_quality = re.sub(f"^{note}", "", chord_str)
-        valid_qualities = pychord.quality.QUALITY_DICT.keys()
+        valid_qualities = list(pychord.quality.QUALITY_DICT.keys())
         valid_qualities.remove("")
         valid_qualities.sort(key=len, reverse=True)
 
@@ -92,15 +91,24 @@ def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
         if not found:
             raise e
 
-        adds = [r.groups()[-2:] for r in re.finditer(add_regex, addomit_str)]
-        omits = [r.groups()[-2:] for r in re.finditer(omit_regex, addomit_str)]
-
-        addomit = {adds: adds, omits: omits}
+        addomit = {
+            "adds": [r.groups()[-2:] for r in re.finditer(add_regex, addomit_str)],
+            "omits": [r.groups()[-2:] for r in re.finditer(omit_regex, addomit_str)],
+        }
 
     if len(addomit) > 0:
-        # chord.quality.append_note("", "C") こんなかんじでaddすべきものを逐次追加していく
-        # scale = musthe.Scale(chord.root, "major")
-        pass
+        s = musthe.Scale(f"{chord.root}3", "major")
+        adds = addomit.get("adds")
+        omits = addomit.get("omits")
+        for add in adds:
+            print(add)
+            align = add[0].count("#") - add[0].count("b")
+            adder_note_dict = parse_note_str(
+                transpose(s[int(add[1]) - 1].scientific_notation(), align)
+            )
+            chord.quality.append_note(
+                adder_note_dict["note"], "C", int(adder_note_dict["oct"]) - 3
+            )
 
     chord.transpose(scale)
     notes = chord.components_with_pitch(base_oct)
@@ -146,17 +154,3 @@ def transpose_without_oct(note: str, scale: int):
 
 def parse_note_str(note: str):
     return note_with_oct_regex.search(note).groupdict()
-
-
-# REGEX = re.compile(
-#     r"([+＋⁺₊﹢])|([‑‑⁻₋﹣−˗ー－-])|([／/＼\\])|([AaＡａ][DdＤｄ]{2})|([OoＯｏ0０][MmＭｍ][IiＩｉ][TtＴｔ]|[NnＮｎ][OoＯｏ0０])|([DdＤｄ][OoＯｏ0０][MmＭｍ](?![IiＩｉ][TtＴｔ])(?:[IiＩｉ](?:[NnＮｎ](?:[AaＡａ](?:[NnＮｎ][TtＴｔ]?)?)?)?)?)|([AaＡａ][UuＵｕ][GgＧｇ](?:[MmＭｍ][EeＥｅ](?:[NnＮｎ](?:[TtＴｔ](?:[EeＥｅ][DdＤｄ]?)?)?)?)?)|([OoＯｏ0０][NnＮｎ])|([DdＤｄ][IiＩｉ][MmＭｍ](?:[IiＩｉ](?:[NnＮｎ](?:[IiＩｉ](?:[SsＳｓ](?:[HhＨｈ](?:[EeＥｅ][DdＤｄ]?)?)?)?)?)?)?|[°ºᵒ˚⁰∘゜ﾟ○◦◯⚪⭕￮⭘OoＯｏ0０])|([HhＨｈ](?:[AaＡａ](?:[LlＬｌ][FfＦｆ]?)?)?[-‑‑⁻₋﹣−˗ー－ 	  -   　]*[DdＤｄ][IiＩｉ][MmＭｍ](?:[IiＩｉ](?:[NnＮｎ](?:[IiＩｉ](?:[SsＳｓ](?:[HhＨｈ](?:[EeＥｅ][DdＤｄ]?)?)?)?)?)?)?|[øØ∅⌀])|([SsＳｓ][UuＵｕ][SsＳｓ](?:[PpＰｐ](?:[EeＥｅ](?:[NnＮｎ](?:[DdＤｄ](?:[EeＥｅ][DdＤｄ]?)?)?)?)?)?)|([MmＭｍ][aａ](?![UuＵｕ][GgＧｇ]|[DdＤｄ]{2})(?:[JjＪｊ](?:[OoＯｏ0０][RrＲｒ]?)?)?|[MＭΔ△∆▵])|([MmＭｍ][IiＩｉ](?:[NnＮｎ](?:[OoＯｏ0０][RrＲｒ]?)?)?|[mｍ])|([（【\(])|([）】\)])|([。．，、・,.])|([RrＲｒ][OoＯｏ0０]{2}[TtＴｔ])|((?:[EeＥｅ][LlＬｌ][EeＥｅ][VvＶｖ][EeＥｅ][NnＮｎ]|[1１]{2})(?:[TtＴｔ][HhＨｈ])?)|((?:[TtＴｔ][HhＨｈ][IiＩｉ][RrＲｒ][TtＴｔ][EeＥｅ]{2}[NnＮｎ]|[1１][3３])(?:[TtＴｔ][HhＨｈ])?)|([FfＦｆ][IiＩｉ][RrＲｒ][SsＳｓ][TtＴｔ]|[OoＯｏ0０][NnＮｎ][EeＥｅ]|[1１](?:[SsＳｓ][TtＴｔ])?)|([SsＳｓ][EeＥｅ][CcＣｃ][OoＯｏ0０][NnＮｎ][DdＤｄ]|[TtＴｔ][WwＷｗ][OoＯｏ0０]|[2２](?:[NnＮｎ][DdＤｄ])?)|([TtＴｔ][HhＨｈ](?:[IiＩｉ][RrＲｒ][DdＤｄ]|[RrＲｒ][EeＥｅ]{2})|[3３](?:[RrＲｒ][DdＤｄ])?)|((?:[FfＦｆ][OoＯｏ0０][UuＵｕ][RrＲｒ]|4|４)(?:[TtＴｔ][HhＨｈ])?)|([FfＦｆ][IiＩｉ](?:[FfＦｆ][TtＴｔ][HhＨｈ]|[VvＶｖ][EeＥｅ])|[5５](?:[TtＴｔ][HhＨｈ])?)|((?:[SsＳｓ][IiＩｉ][XxＸｘ×]|6|６)(?:[TtＴｔ][HhＨｈ])?)|((?:[SsＳｓ][EeＥｅ][VvＶｖ][EeＥｅ][NnＮｎ]|7|７)(?:[TtＴｔ][HhＨｈ])?)|([NnＮｎ][IiＩｉ][NnＮｎ](?:[TtＴｔ][HhＨｈ]|[EeＥｅ])|[9９](?:[TtＴｔ][HhＨｈ])?)|([FfＦｆ][LlＬｌ](?:[AaＡａ][TtＴｔ]?)?|♭)|([bｂ])|([SsＳｓ](?:[HhＨｈ](?:[AaＡａ](?:[RrＲｒ][PpＰｐ]?)?)?)?|[#＃♯])|([DdＤｄ](?:[OoＯｏ0０][UuＵｕ][BbＢｂ][LlＬｌ][EeＥｅ]|[BbＢｂ][LlＬｌ])[-‑‑⁻₋﹣−˗ー－ 	 ﻿ -   　]*(?:[FfＦｆ][LlＬｌ](?:[AaＡａ][TtＴｔ]?)?|♭)|𝄫)|([DdＤｄ](?:[OoＯｏ0０][UuＵｕ][BbＢｂ][LlＬｌ][EeＥｅ]|[BbＢｂ][LlＬｌ])[-‑‑⁻₋﹣−˗ー－ 	 ﻿ -   　]*(?:[SsＳｓ](?:[HhＨｈ](?:[AaＡａ](?:[RrＲｒ][PpＰｐ]?)?)?)?|[#＃♯])|𝄪|[XxＸｘ×])|([DdＤｄ]?(?:[OoＯｏ0０][UuＵｕ][BbＢｂ][LlＬｌ][EeＥｅ]|[BbＢｂ][LlＬｌ])[-‑‑⁻₋﹣−˗ー－ 	 ﻿ -   　]*(?:[NnＮｎ][AaＡａ](?:[TtＴｔ](?:[UuＵｕ](?:[RrＲｒ](?:[AaＡａ][LlＬｌ]?)?)?)?)?|♮))|([AaＡａ]|[VvＶｖ][IiＩｉ](?![IiＩｉ])|[Ⅵⅵ])|([BＢ]|[VvＶｖ][IiＩｉ]{2}|[Ⅶⅶ])|([CcＣｃ]|[IiＩｉ](?![IiＩｉVvＶｖ])|[Ⅰⅰ])|([DdＤｄ]|[IiＩｉ]{2}(?![IiＩｉ])|[Ⅱⅱ])|([EeＥｅ]|[IiＩｉ]{3}|[Ⅲⅲ])|([FfＦｆ]|[IiＩｉ][VvＶｖ]|[Ⅳⅳ])|([GgＧｇ]|[VvＶｖ](?![IiＩｉ])|[Ⅴⅴ])|([ 	 ﻿ -   　]+)|([NnＮｎ](?:[OoＯｏ0０][NnＮｎ]?)?[-‑‑⁻₋﹣−˗ー－ 	  -   　。．，、・,.]*[CcＣｃ](?:[HhＨｈ](?:[OoＯｏ0０](?:[RrＲｒ][DdＤｄ]?)?)?)?[。．，、・,.]*|[\^])"
-# )
-
-
-# def chord_translate(chord_str: str, base_oct: int = 3):
-#     parts = [list(filter(lambda x: x != "", e))[0] for e in REGEX.findall(chord_str)]
-#     chord = pychord.Chord(parts[0])
-#     if chord.on:
-#         return chord.components_with_pitch(base_oct - 1)
-#     else:
-#         return chord.components_with_pitch(base_oct)
