@@ -37,13 +37,12 @@ class Chord(Base):
             on = None
 
         notes = chord_translate(chord, scale)
+        print(chord, notes)
 
-        # notes = transpose_notes(notes, scale)
         notes = add_juicy(notes)
         if on:
             notes = add_new_root_notes(notes, transpose_without_oct(on, scale))
 
-        print(notes)
         return notes
 
 
@@ -64,7 +63,7 @@ def up_octave(note) -> str:
 
 
 add = f"((add)?({signature})(11|13|2|4|6|9){{1}})"
-omit = f"((omit|no)({signature})(11|13|1|3|5|7|9){{1}})"
+omit = f"((omit|no)(11|13|1|3|5|7|9){{1}})"
 add_regex = re.compile(add)
 omit_regex = re.compile(omit)
 
@@ -93,7 +92,7 @@ def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
 
         addomit = {
             "adds": [r.groups()[-2:] for r in re.finditer(add_regex, addomit_str)],
-            "omits": [r.groups()[-2:] for r in re.finditer(omit_regex, addomit_str)],
+            "omits": [r.groups()[-1] for r in re.finditer(omit_regex, addomit_str)],
         }
 
     if len(addomit) > 0:
@@ -101,14 +100,18 @@ def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
         adds = addomit.get("adds")
         omits = addomit.get("omits")
         for add in adds:
-            print(add)
             align = add[0].count("#") - add[0].count("b")
             adder_note_dict = parse_note_str(
                 transpose(s[int(add[1]) - 1].scientific_notation(), align)
             )
             chord.quality.append_note(
-                adder_note_dict["note"], "C", int(adder_note_dict["oct"]) - 3
+                adder_note_dict["note"], chord._root, int(adder_note_dict["oct"]) - 3
             )
+
+        for omit in omits:
+            for o in range(int(omit) - 2, int(omit) + 1):
+                if o in chord.quality.components:
+                    chord.quality.components.remove(o)
 
     chord.transpose(scale)
     notes = chord.components_with_pitch(base_oct)
