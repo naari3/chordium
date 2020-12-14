@@ -57,4 +57,38 @@ TONE_DICT = {
     "B": 11,
 }
 
+# musthe の Scale が # を持つトーンを作りがちなのでその対策をする
+# B# や G## が存在してしまう
+TONE_FROM_MUSTHE = {
+    "B#": "C",
+    "C": "C",
+    "C#": "C#",
+    "Db": "Db",
+    "C##": "D",
+    "D": "D",
+    "D#": "D#",
+    "Eb": "Eb",
+    "D##": "E",
+    "E": "E",
+    "E#": "F",
+    "F": "F",
+    "F#": "F#",
+    "Gb": "Gb",
+    "F##": "G",
+    "G": "G",
+    "G#": "G#",
+    "Ab": "Ab",
+    "G##": "A",
+    "A": "A",
+    "A#": "A#",
+    "Bb": "Bb",
+    "A##": "B",
+    "B": "B",
+}
+MUSTHE_TONE_DICT = {}
+for t, v in TONE_DICT.items():
+    if not "b" in t:
+        MUSTHE_TONE_DICT[f"{t}#"] = (v + 1) % 11
+    MUSTHE_TONE_DICT[t] = v
+
 INV_TONE_DICT = {v: k for k, v in TONE_DICT.items()}

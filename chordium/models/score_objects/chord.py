@@ -1,6 +1,7 @@
 from chordium.constants import (
     DEGREE_DICT,
     TONE_DICT,
+    TONE_FROM_MUSTHE,
     INV_TONE_DICT,
     note_with_oct,
     note,
@@ -29,7 +30,11 @@ class Chord(Base):
         return self._chord
 
     def to_notes(self, scale: int = 0) -> List[str]:
-        splitted = self._chord.split("/")
+        chord_str = self._chord
+        for t, v in TONE_FROM_MUSTHE.items():
+            if t in chord_str:
+                chord_str = chord_str.replace(t, v)
+        splitted = chord_str.split("/")
         if len(splitted) != 1:
             chord, on = splitted
         else:
@@ -101,6 +106,7 @@ def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
         omits = addomit.get("omits")
         for add in adds:
             align = add[0].count("#") - add[0].count("b")
+
             adder_note_dict = parse_note_str(
                 transpose(s[int(add[1]) - 1].scientific_notation(), align)
             )
@@ -139,7 +145,7 @@ def transpose(note: str, scale: int):
     notedict = parse_note_str(note)
     note = notedict["note"]
     oct = int(notedict["oct"])
-    note_number = TONE_DICT[note] + scale
+    note_number = TONE_DICT[TONE_FROM_MUSTHE[note]] + scale
     if note_number > 11:
         oct += 1
     elif note_number < 0:
