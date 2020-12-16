@@ -89,8 +89,8 @@ def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
         for quality in valid_qualities:
             if chord_without_quality.find(quality) == 0:  # 先頭のコードqualityを削除する
                 found = True
-                addomit_str = chord_without_quality.lstrip(quality)
-                chord = pychord.Chord(chord_str.rstrip(addomit_str))
+                addomit_str = re.sub(f"^{quality}", "", chord_without_quality)
+                chord = pychord.Chord(re.sub(f"{addomit_str}$", "", chord_str))
                 break
         if not found:
             raise e
