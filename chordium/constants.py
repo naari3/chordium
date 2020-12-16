@@ -1,6 +1,6 @@
 import re
 
-signature = r"[#b]{0,2}"
+signature = r"[#b+-]{0,2}"
 scales = r"[CDEFGAB]"
 degrees = r"(VII|III|IV|VI|II|I|V)"
 note = f"{scales}{signature}"

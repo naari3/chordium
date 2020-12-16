@@ -74,6 +74,7 @@ omit_regex = re.compile(omit)
 
 
 def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
+    chord_str = chord_str.replace("(", "").replace(")", "")
     try:
         chord = pychord.Chord(chord_str)
         addomit = dict()
@@ -89,8 +90,12 @@ def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
         for quality in valid_qualities:
             if chord_without_quality.find(quality) == 0:  # 先頭のコードqualityを削除する
                 found = True
-                addomit_str = re.sub(f"^{quality}", "", chord_without_quality)
-                chord = pychord.Chord(re.sub(f"{addomit_str}$", "", chord_str))
+                addomit_str = re.sub(
+                    f"^{re.escape(quality)}", "", chord_without_quality
+                )
+                chord = pychord.Chord(
+                    re.sub(f"{re.escape(addomit_str)}$", "", chord_str)
+                )
                 break
         if not found:
             raise e
@@ -105,7 +110,12 @@ def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
         adds = addomit.get("adds")
         omits = addomit.get("omits")
         for add in adds:
-            align = add[0].count("#") - add[0].count("b")
+            align = (
+                add[0].count("#")
+                + add[0].count("+")
+                - add[0].count("b")
+                - add[0].count("-")
+            )
 
             adder_note_dict = parse_note_str(
                 transpose(s[int(add[1]) - 1].scientific_notation(), align)
