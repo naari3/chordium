@@ -100,6 +100,8 @@ def chord_translate(chord_str: str, scale: int, base_oct: int = 3) -> List[str]:
         if not found:
             raise e
 
+        # TODO: Fix this
+        # Should raise error if removed addomit_str is not empty
         addomit = {
             "adds": [r.groups()[-2:] for r in re.finditer(add_regex, addomit_str)],
             "omits": [r.groups()[-1] for r in re.finditer(omit_regex, addomit_str)],
