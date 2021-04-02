@@ -29,6 +29,13 @@ jobs:
           echo ::set-output name=tags::${TAGS}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
@@ -41,6 +48,12 @@ jobs:
         with:
           push: true
           tags: ${{ steps.prep.outputs.tags }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   update-manifest:
     name: Update manifest files
@@ -71,22 +84,22 @@ jobs:
         with:
           kustomize-version: "4.0.5"
       - name: Clone manifest repository
-        run: git clone https://${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }}@github.com/naari3/bot-pool-manifest.git ~/bot-pool-manifest
+        run: git clone https://x-access-token:${{ secrets.BOT_POOL_TOKEN }}@github.com/naari3/bot-pool-manifest.git ~/bot-pool-manifest
       - name: Push manifest with new image
         run: |
           cd ~/bot-pool-manifest/chordium
           git checkout -b gitops-chordium-${{ steps.prep.outputs.version }}
           kustomize edit set image ${{ steps.prep.outputs.tags }}
+          git config --global user.name "GitHub Action"
+          git config --global user.email "github-actions@github.com"
           git add .
-          git commit -m "Set `chordium` image tag to `${{ steps.prep.outputs.version }}`"
-          git push origin gitops-chordium-${{ steps.prep.outputs.version }}
+          git commit -m "Set chordium image tag to ${{ steps.prep.outputs.version }}"
+          git push -f origin gitops-chordium-${{ steps.prep.outputs.version }}
       - name: Create pull request
         run: |
+          cd ~/bot-pool-manifest
           gh pr create \
             -t "Deploy a new image chordium:${{ steps.prep.outputs.version }}" \
-            -b "This is auto-generated pull request from https://github.com/${{ github.repository_owner }}/${{ github.repository.name }}/commit/${{ github.sha }} by Github Actions"
+            -b "This is auto-generated pull request from https://github.com/${{ github.repository }}/commit/${{ github.sha }} by Github Actions"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Debug
-        if: ${{ always() }}
-        uses: mxschmitt/action-tmate@v3
+          GITHUB_TOKEN: ${{ secrets.BOT_POOL_TOKEN }}
