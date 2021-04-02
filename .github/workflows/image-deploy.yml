@@ -90,10 +90,8 @@ jobs:
           cd ~/bot-pool-manifest/chordium
           git checkout -b gitops-chordium-${{ steps.prep.outputs.version }}
           kustomize edit set image ${{ steps.prep.outputs.tags }}
-          git config --global user.name "GitHub Action"
-          git config --global user.email "github-actions@github.com"
           git add .
-          git commit -m "Set chordium image tag to ${{ steps.prep.outputs.version }}"
+          git commit -m "Set chordium image tag to ${{ steps.prep.outputs.version }}" --author="github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
           git push -f origin gitops-chordium-${{ steps.prep.outputs.version }}
       - name: Create pull request
         run: |
