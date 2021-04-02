@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y cmake \
 FROM python:3.8 AS ffmpeg-builder
 
 RUN apt-get update && apt-get install -y xz-utils curl \
-  && curl -O https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz \
+  && curl -sO https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz \
   && tar xJf ffmpeg-git-amd64-static.tar.xz \
   && mv ffmpeg-git-*-amd64-static/ffmpeg /usr/local/bin/
 
