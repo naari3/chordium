@@ -30,6 +30,8 @@ class Chorder(commands.Cog):
     ):
         """Play specific chords."""
 
+        self.bot.logger.info(f"{ctx.author}: {ctx.message.content}")
+
         if scale == "-":
             scale = "C"
 
@@ -56,3 +58,5 @@ class Chorder(commands.Cog):
             await ctx.send(
                 f"*♪* {progression.show_progress()}", file=discord.File(f, "chord.wav")
             )
+
+        self.bot.logger.debug("played")

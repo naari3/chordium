@@ -42,7 +42,6 @@ class Chord(Base):
             on = None
 
         notes = chord_translate(chord, scale)
-        print(chord, notes)
 
         notes = add_juicy(notes)
         if on:
