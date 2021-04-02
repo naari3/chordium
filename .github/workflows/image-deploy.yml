@@ -1,9 +1,9 @@
-name: Publish Docker image
+name: Release
 on:
   release:
     types: [published]
 jobs:
-  push_to_registry:
+  push-to-registry:
     name: Push Docker image to GitHub Packages
     runs-on: ubuntu-latest
     steps:
@@ -41,3 +41,52 @@ jobs:
         with:
           push: true
           tags: ${{ steps.prep.outputs.tags }}
+
+  update-manifest:
+    name: Update manifest files
+    runs-on: ubuntu-latest
+    needs: [push-to-registry]
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Prepare
+        id: prep
+        run: |
+          DOCKER_IMAGE=ghcr.io/naari3/chordium
+          VERSION=edge
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          elif [[ $GITHUB_REF == refs/heads/* ]]; then
+            VERSION=$(echo ${GITHUB_REF#refs/heads/} | sed -r 's#/+#-#g')
+          elif [[ $GITHUB_REF == refs/pull/* ]]; then
+            VERSION=pr-${{ github.event.number }}
+          fi
+          TAGS="${DOCKER_IMAGE}:${VERSION}"
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAGS="$TAGS,${DOCKER_IMAGE}:sha-${GITHUB_SHA::8}"
+          fi
+          echo ::set-output name=version::${VERSION}
+          echo ::set-output name=tags::${TAGS}
+      - uses: imranismail/setup-kustomize@v1
+        with:
+          kustomize-version: "4.0.5"
+      - name: Clone manifest repository
+        run: git clone https://${{ github.repository_owner }}:${{ secrets.GITHUB_TOKEN }}@github.com/naari3/bot-pool-manifest.git ~/bot-pool-manifest
+      - name: Push manifest with new image
+        run: |
+          cd ~/bot-pool-manifest/chordium
+          git checkout -b gitops-chordium-${{ steps.prep.outputs.version }}
+          kustomize edit set image ${{ steps.prep.outputs.tags }}
+          git add .
+          git commit -m "Set `chordium` image tag to `${{ steps.prep.outputs.version }}`"
+          git push origin gitops-chordium-${{ steps.prep.outputs.version }}
+      - name: Create pull request
+        run: |
+          gh pr create \
+            -t "Deploy a new image chordium:${{ steps.prep.outputs.version }}" \
+            -b "This is auto-generated pull request from https://github.com/${{ github.repository_owner }}/${{ github.repository.name }}/commit/${{ github.sha }} by Github Actions"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Debug
+        if: ${{ always() }}
+        uses: mxschmitt/action-tmate@v3
