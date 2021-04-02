@@ -20,6 +20,7 @@ pychord = {ref = "890dc5687eaa9aef659ddbcd292a4f3c0f79fff0", git = "https://gith
 musthe = "*"
 pytheory = "*"
 pytuning = {ref = "e46f5f2135f02b6f66465f312c88631f36ffe9f7", git = "https://github.com/naari3/PyTuning.git"}
+pydub = "*"
 
 [requires]
 python_version = "3.8"

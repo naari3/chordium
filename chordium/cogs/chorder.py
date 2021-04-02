@@ -3,6 +3,8 @@ from discord.ext import commands
 
 import tempfile
 
+from pydub import AudioSegment
+
 
 from chordium.models import ScoreParser, ScorePlayer
 from chordium.utils import scale_to_int
@@ -50,16 +52,19 @@ class Chorder(commands.Cog):
             metronome = False
 
         with tempfile.TemporaryFile() as w_f:
-            with tempfile.TemporaryFile() as m_f:
-                progression = ScoreParser().parse(chords, float(bpm))
-                player = ScorePlayer(instrument)
-                notes = progression.to_notes(scale_to_int(scale))
-                player.make_music(w_f, m_f, notes)
+            with tempfile.TemporaryFile() as mp3_f:
+                with tempfile.TemporaryFile() as m_f:
+                    progression = ScoreParser().parse(chords, float(bpm))
+                    player = ScorePlayer(instrument)
+                    notes = progression.to_notes(scale_to_int(scale))
+                    player.make_music(w_f, m_f, notes)
 
-                files = [
-                    discord.File(w_f, "chord.wav"),
-                    discord.File(m_f, "chord.mid"),
-                ]
-                await ctx.send(f"*♪* {progression.show_progress()}", files=files)
+                    AudioSegment.from_wav(w_f).export(mp3_f)
+
+                    files = [
+                        discord.File(mp3_f, "chord.mp3"),
+                        discord.File(m_f, "chord.mid"),
+                    ]
+                    await ctx.send(f"*♪* {progression.show_progress()}", files=files)
 
         self.bot.logger.debug("played")

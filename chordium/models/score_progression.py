@@ -51,7 +51,9 @@ class ScoreProgression(object):
                     )
                     notes.append(note)
             current_position += beat_length.length * bpm_multiplexer
-            if current_position * 44100 * 16 * 2 / 8 > 8388608:
+            if (
+                current_position * 44100 * 16 * 2 / 8 > 8388608 * 5
+            ):  # あとでmp3に変換するようにしたのでかなりゆるくした
                 raise ChordiumException("長すぎます！")
 
         return notes

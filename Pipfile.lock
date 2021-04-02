@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a3c34504f6d8b1e69e3ada48a32557688e0fb4af598eb6d533f1dac7c609d28f"
+            "sha256": "44d638df3f5e3b602b2270c5ee1d0e9a41318d30a2b6854cdfec4aee342b466b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -211,6 +211,14 @@
             "git": "https://github.com/naari3/pychord.git",
             "ref": "890dc5687eaa9aef659ddbcd292a4f3c0f79fff0"
         },
+        "pydub": {
+            "hashes": [
+                "sha256:65617e33033874b59d87db603aa1ed450633288aefead953b30bded59cb599a6",
+                "sha256:980a33ce9949cab2a569606b65674d748ecbca4f0796887fd6f46173a7b0d30f"
+            ],
+            "index": "pypi",
+            "version": "==0.25.1"
+        },
         "pyfluidsynth": {
             "hashes": [
                 "sha256:7473eec5744b609c59e7685fcb2f24efe3769225db3ca2e6851a56f7586cb82e",
@@ -418,10 +426,10 @@
         },
         "decorator": {
             "hashes": [
-                "sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760",
-                "sha256:e3a62f0520172440ca0dcc823749319382e377f37f140a0b99ef45fecb84bfe7"
+                "sha256:11f6e1e1ba3e7ffbfd9362da692e65791d6367bfd68ebf07064dd29a6e30f137",
+                "sha256:fcb017be35f10951958e0871fb70e553db9cac018e303d748b63fcd60eb70149"
             ],
-            "version": "==4.4.2"
+            "version": "==5.0.0"
         },
         "ipdb": {
             "hashes": [

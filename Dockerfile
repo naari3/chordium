@@ -22,11 +22,21 @@ RUN apt-get update && apt-get install -y cmake \
   && tar czf libgomp.tar.gz /usr/lib/x86_64-linux-gnu/libgomp.so*
 
 
+FROM python:3.8 AS ffmpeg-builder
+
+RUN apt-get update && apt-get install -y xz-utils curl \
+  && curl -O https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz \
+  && tar xJf ffmpeg-git-amd64-static.tar.xz \
+  && mv ffmpeg-git-*-amd64-static/ffmpeg /usr/local/bin/
+
+
 FROM python:3.8-slim
 
 ENV PYTHONUNBUFFERED=1
 
 COPY --from=builder /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/site-packages
+
+COPY --from=ffmpeg-builder /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
 
 COPY --from=fluid-builder /fluidsynth/build/libfluidsynth.tar.gz /libfluidsynth.tar.gz
 COPY --from=fluid-builder /fluidsynth/build/libgthread.tar.gz /libgthread.tar.gz
