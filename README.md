@@ -13,4 +13,4 @@
 
 # あ
 
-各和音の進行は [pychord](https://github.com/yuma-m/pychord) に依存しています
+各和音の進行は [pychord](https://github.com/naari3/pychord) に依存しています
