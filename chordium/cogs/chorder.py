@@ -49,14 +49,17 @@ class Chorder(commands.Cog):
         elif metronome in ("no", "n", "false", "f", "0", "disable", "off"):
             metronome = False
 
-        with tempfile.TemporaryFile() as f:
-            progression = ScoreParser().parse(chords, float(bpm))
-            player = ScorePlayer(instrument)
-            notes = progression.to_notes(scale_to_int(scale))
-            player.make_wav(f, notes)
+        with tempfile.TemporaryFile() as w_f:
+            with tempfile.TemporaryFile() as m_f:
+                progression = ScoreParser().parse(chords, float(bpm))
+                player = ScorePlayer(instrument)
+                notes = progression.to_notes(scale_to_int(scale))
+                player.make_music(w_f, m_f, notes)
 
-            await ctx.send(
-                f"*♪* {progression.show_progress()}", file=discord.File(f, "chord.wav")
-            )
+                files = [
+                    discord.File(w_f, "chord.wav"),
+                    discord.File(m_f, "chord.mid"),
+                ]
+                await ctx.send(f"*♪* {progression.show_progress()}", files=files)
 
         self.bot.logger.debug("played")
